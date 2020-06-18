@@ -102,7 +102,7 @@ class Video extends CI_Controller {
 		foreach ($rootdirs as $dir) {
 			$chdir = $dir."/".$month."-".$monthName."/".$date."/";
 			$sourcearr = explode("/", $dir);
-			$source = $sourcearr[2];
+			$source = $sourcearr[4];
 			$func = function($var) {
 					$charr = explode("/", $var);
 					$channel = $charr[7];
