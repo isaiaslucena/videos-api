@@ -54,12 +54,12 @@ class Video extends CI_Controller {
 
 	function thumbrootdir() {
 		return $rootdir = array(
-			"/disks/videos/tv/THUMB"
+			"/applications/record/files/REC01/tv/THUMB"
 		);
 	}
 
 	function thumbsrcdir($source) {
-		return "/disks/".$source."/tv/THUMB";
+		return "/applications/record/files/".$source."/tv/THUMB";
 	}
 
 	function thumbdestfile($file,$num) {
