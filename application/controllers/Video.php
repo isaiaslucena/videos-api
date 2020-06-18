@@ -153,8 +153,6 @@ class Video extends CI_Controller {
 
 	public function getvideo($file) {
 		$destfile = $this->destfile($file);
-		var_dump($destfile);
-		exit();
 
 		if (file_exists($destfile)) {
 			header('Access-Control-Allow-Origin: *');
