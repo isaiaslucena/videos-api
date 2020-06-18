@@ -105,7 +105,7 @@ class Video extends CI_Controller {
 			$source = $sourcearr[4];
 			$func = function($var) {
 					$charr = explode("/", $var);
-					$channel = $charr[7];
+					$channel = $charr[9];
 					return $channel;
 			};
 			$channels[$source] = array_map($func, glob($chdir."*", GLOB_ONLYDIR));
