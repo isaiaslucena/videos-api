@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Video extends CI_Controller {
 	function rootdir() {
 		return $rootdir = array(
-			"/disks/videos/tv/MIDIA",
+			"/applications/record/files/REC01/tv/MIDIA",
 		);
 	}
 
