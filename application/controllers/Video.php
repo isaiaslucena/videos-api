@@ -9,7 +9,7 @@ class Video extends CI_Controller {
 	}
 
 	function srcdir($source) {
-		return "/disks/".$source."/tv/MIDIA";
+		return "/applications/record/files/".$source."/tv/MIDIA";
 	}
 
 	function destfile($file) {
