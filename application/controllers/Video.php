@@ -234,7 +234,7 @@ class Video extends CI_Controller {
 			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -y ".$this->cropDir().$message['cropfilename'];
 		}
 
-		putenv("FFREPORT=file=".$cropLogDir.".$now.".log:level=32");
+		putenv("FFREPORT=file=".$cropLogDir.$now.".log:level=32");
 		exec("/bin/bash -c \"".$message['execcrop']." 1> /dev/null 2>/dev/null &\"", $message['execlog'], $message['execreturn']);
 
 		header('Access-Control-Allow-Origin: *');
