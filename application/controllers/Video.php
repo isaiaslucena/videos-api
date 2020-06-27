@@ -507,6 +507,9 @@ class Video extends CI_Controller {
 			header('Access-Control-Allow-Origin: *');
 			header('Content-Type: application/json');
 			print json_encode($progress);
+		} else {
+			header("HTTP/1.1 404 Not Found");
+			echo $content;
 		}
 	}
 
