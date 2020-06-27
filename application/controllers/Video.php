@@ -47,7 +47,7 @@ class Video extends CI_Controller {
 		$channel = $filenarr[3];
 		$state = $filenarr[4];
 
-		$rootdir = "/tv/JOIN";
+		$rootdir = $this->joinDir();
 		$filename = str_replace($source."_", "",$file);
 		return $destfile = $rootdir."/".$filename;
 	}
@@ -81,6 +81,38 @@ class Video extends CI_Controller {
 		$filename = str_replace($source."_", "",$file);
 		$foldername = str_replace($source."_", "",$file);
 		return $thumbrootdir."/".$month."-".$monthName."/".$date."/".$channel."_".$state."/".$foldername."/".$filename."_".$num.".jpg";
+	}
+
+	function cropDir() {
+		$cropDir = '/tv/CROP/';
+		if (!file_exists($cropDir)) {
+			mkdir($cropDir, 0777, true);
+		}
+		return $cropDir;
+	}
+
+	function joinDir() {
+		$joinDir = '/tv/JOIN/';
+		if (!file_exists($joinDir)) {
+			mkdir($joinDir, 0777, true);
+		}
+		return $joinDir;
+	}
+
+	function cropLogDir() {
+		$cropLogDir = '/tv/LOG/CROP/';
+		if (!file_exists($cropLogDir)) {
+			mkdir($cropLogDir, 0777, true);
+		}
+		return $cropLogDir;
+	}
+
+	function joinLogDir() {
+		$joinLogDir = '/tv/LOG/JOIN/';
+		if (!file_exists($joinLogDir)) {
+			mkdir($joinLogDir, 0777, true);
+		}
+		return $joinLogDir;
 	}
 
 	public function index() {
@@ -180,6 +212,9 @@ class Video extends CI_Controller {
 	}
 
 	public function cropvideo($file, $start, $dur) {
+		$cropDir = $this.>cropDir();
+		$cropLogDir = $this->cropLogDir();
+
 		$ffmpegpath = "/usr/bin/ffmpeg";
 		$src = explode("_", $file);
 		$source = $src[0];
@@ -192,14 +227,14 @@ class Video extends CI_Controller {
 		$message['cropfilename'] = $file."_".$now."_crop.mp4";
 
 		if ($source == 'cagiva01' or $source == 'cagiva02') {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -c:v libx264 -preset ultrafast -crf 26 -vf yadif -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -c:v libx264 -preset ultrafast -crf 26 -vf yadif -y ".$this->cropDir().$message['cropfilename'];
 		} else if ($source == 'vespa' or $source == 'honda01' or $source == 'honda02' or $source == 'honda03' or $source == 'buell04' or $source == 'buell05') {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -r 30 -vf yadif -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -r 30 -vf yadif -y ".$this->cropDir().$message['cropfilename'];
 		} else {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -y ".$this->cropDir().$message['cropfilename'];
 		}
 
-		putenv("FFREPORT=file=/tv/LOG/CROP/".$now.".log:level=32");
+		putenv("FFREPORT=file=".$cropLogDir.".$now.".log:level=32");
 		exec("/bin/bash -c \"".$message['execcrop']." 1> /dev/null 2>/dev/null &\"", $message['execlog'], $message['execreturn']);
 
 		header('Access-Control-Allow-Origin: *');
@@ -208,7 +243,7 @@ class Video extends CI_Controller {
 	}
 
 	public function getcropvideo($file, $vifile = null) {
-		$destfile = "/tv/CROP/".$file;
+		$destfile = $this->cropDir().$file;
 
 		if (is_null($vifile)) {
 			$downdestfile = $destfile;
@@ -247,7 +282,7 @@ class Video extends CI_Controller {
 	}
 
 	public function verifycropvideo($file) {
-		$destfile = "/tv/CROP/".$file;
+		$destfile = $this->cropDir().$file;
 
 		if (file_exists($destfile)) {
 			header('Access-Control-Allow-Origin: *');
@@ -260,6 +295,7 @@ class Video extends CI_Controller {
 	}
 
 	public function joinvideos() {
+		$joinLogDir = $this->joinLogDir();
 		$postdata = ($_POST = json_decode(file_get_contents("php://input"),true));
 		$vsource = $postdata['vsource'];
 		$files = $postdata['files'];
@@ -279,7 +315,7 @@ class Video extends CI_Controller {
 		$now = strtotime("now");
 		$message["id"] = $now;
 		$ffmpegpath = "/usr/bin/ffmpeg";
-		$destdir = "/tv/JOIN/";
+		$destdir = $this->joinDir();
 		$filesdir = "/tv/LOG/JOINFILES";
 		$message['joinfilename'] = $vsource."_".$firstfiledate."_to_".$lastfiledate."_".$firstfilename."_".$now."_join.mp4";
 
@@ -318,7 +354,7 @@ class Video extends CI_Controller {
 			$message['execjoin'] = $ffmpegpath." -f concat -safe 0 -i ".$concatfile." -c copy -y ".$destdir.$message['joinfilename'];
 		}
 
-		putenv("FFREPORT=file=/tv/LOG/JOIN/".$now.".log:level=32");
+		putenv("FFREPORT=file=".$this->joinLogDir().$now.".log:level=32");
 		exec("/bin/bash -c \"".$message['execjoin']." 1> /dev/null 2>/dev/null &\"", $message['execlog'], $message['execreturn']);
 
 		header('Access-Control-Allow-Origin: *');
@@ -339,13 +375,13 @@ class Video extends CI_Controller {
 		$now = strtotime("now");
 		$message["id"] = $now;
 		$ffmpegpath = "/usr/bin/ffmpeg";
-		$destdir = "/tv/JOIN/";
+		$destdir = $this->joinDir();
 		$filesdir = "/tv/LOG/JOINFILES";
 		$message['joinfilename'] = $firstfiledate."_".$firstfilename."_".$now."_join.mp4";
 
 		$concatfile = $filesdir."/".$now."_files.txt";
 		$concatdur = array();
-		$sdir = "/tv/CROP/";
+		$sdir = $this->cropDir();
 		$ccount=0;
 		foreach ($message['files'] as $mfile) {
 			$execout = array();
@@ -379,7 +415,7 @@ class Video extends CI_Controller {
 			$message['execjoin'] = $ffmpegpath." -f concat -safe 0 -i ".$concatfile." -c copy -y ".$destdir.$message['joinfilename'];
 		}
 
-		putenv("FFREPORT=file=/tv/LOG/JOIN/".$now.".log:level=32");
+		putenv("FFREPORT=file=".$this->joinLogDir().$now.".log:level=32");
 		exec("/bin/bash -c \"".$message['execjoin']." 1> /dev/null 2>/dev/null &\"", $message['execlog'], $message['execreturn']);
 
 		header('Access-Control-Allow-Origin: *');
@@ -388,7 +424,7 @@ class Video extends CI_Controller {
 	}
 
 	public function getjoinvideo($file) {
-		$destfile = "/tv/JOIN/".$file;
+		$destfile = $this->joinDir().$file;
 
 		if (file_exists($destfile)) {
 			header('Access-Control-Allow-Origin: *');
@@ -405,7 +441,7 @@ class Video extends CI_Controller {
 		$nfile = str_replace(".mp4", "", $file);
 		$src = explode("_", $file);
 		$source = $src[0];
-		$destfile = "/tv/JOIN/".$file;
+		$destfile = $this->joinDir().$file;
 		$start = str_replace("-", ":", $start);
 		$dur = str_replace("-", ":", $dur);
 		$now = strtotime("now");
@@ -413,14 +449,14 @@ class Video extends CI_Controller {
 		$message['cropfilename'] = $nfile."_".$now."_crop.mp4";
 
 		if ($source == 'cagiva01' or $source == 'cagiva02') {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -c:v libx264 -preset ultrafast -crf 26 -vf yadif -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -c:v libx264 -preset ultrafast -crf 26 -vf yadif -y ".$this->cropDir().$message['cropfilename'];
 		} else if ($source == 'vespa' or $source == 'honda01' or $source == 'honda02' or $source == 'buell04' or $source == 'buell05') {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -r 30 -vf yadif -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset veryfast -r 30 -vf yadif -y ".$this->cropDir().$message['cropfilename'];
 		} else {
-			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset ultrafast -y /tv/CROP/".$message['cropfilename'];
+			$message['execcrop'] = $ffmpegpath." -ss ".$start." -i ".$destfile." -t ".$dur." -preset ultrafast -y ".$this->cropDir().$message['cropfilename'];
 		}
 
-		putenv("FFREPORT=file=/tv/LOG/CROP/".$now.".log:level=32");
+		putenv("FFREPORT=file=".$this->cropDir().$now.".log:level=32");
 		exec("/bin/bash -c \"".$message['execcrop']." 1> /dev/null 2>/dev/null &\"", $message['execlog'], $message['execreturn']);
 
 		header('Access-Control-Allow-Origin: *');
@@ -429,7 +465,7 @@ class Video extends CI_Controller {
 	}
 
 	public function cropprogress($pid, $croptime) {
-		$content = @file_get_contents('/tv/LOG/CROP/'.$pid.'.log');
+		$content = @file_get_contents($this->cropLogDir().$pid.'.log');
 
 		if ($content) {
 			//get duration of source
@@ -477,7 +513,7 @@ class Video extends CI_Controller {
 	}
 
 	public function joinprogress($pid, $totaltime) {
-		$content = @file_get_contents('/tv/LOG/JOIN/'.$pid.'.log');
+		$content = @file_get_contents($this->joinLogDir().$pid.'.log');
 
 		if ($content) {
 			//get duration of source
