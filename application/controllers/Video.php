@@ -115,6 +115,14 @@ class Video extends CI_Controller {
 		return $joinLogDir;
 	}
 
+	function joinFilesLogDir() {
+		$joinFilesLogDir = '/tv/LOG/JOINFILES';
+		if (!file_exists($joinFilesLogDir)) {
+			mkdir($joinFilesLogDir, 0777, true);
+		}
+		return $joinFilesLogDir;
+	}
+
 	public function index() {
 		$message = "Please, select one option!";
 		header('Access-Control-Allow-Origin: *');
@@ -250,7 +258,7 @@ class Video extends CI_Controller {
 			$vifile = $vifile.".mp4";
 			$vinhetafile = $vinhetadir.$vifile;
 
-			$filesdir = "/tv/LOG/JOINFILES";
+			$filesdir = $this->joinFilesLogDir();
 			$now = strtotime("now");
 			$concatfile = $filesdir."/".$now."_files.txt";
 			file_put_contents($concatfile, "file '".$vinhetafile."'\n", FILE_APPEND);
@@ -314,7 +322,7 @@ class Video extends CI_Controller {
 		$message["id"] = $now;
 		$ffmpegpath = "/usr/bin/ffmpeg";
 		$destdir = $this->joinDir();
-		$filesdir = "/tv/LOG/JOINFILES";
+		$filesdir = $this->joinFilesLogDir();
 		$message['joinfilename'] = $vsource."_".$firstfiledate."_to_".$lastfiledate."_".$firstfilename."_".$now."_join.mp4";
 
 		$concatfile = $filesdir."/".$now."_files.txt";
@@ -374,7 +382,7 @@ class Video extends CI_Controller {
 		$message["id"] = $now;
 		$ffmpegpath = "/usr/bin/ffmpeg";
 		$destdir = $this->joinDir();
-		$filesdir = "/tv/LOG/JOINFILES";
+		$filesdir = $this->joinFilesLogDir();
 		$message['joinfilename'] = $firstfiledate."_".$firstfilename."_".$now."_join.mp4";
 
 		$concatfile = $filesdir."/".$now."_files.txt";
