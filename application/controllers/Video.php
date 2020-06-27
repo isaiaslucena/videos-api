@@ -163,9 +163,7 @@ class Video extends CI_Controller {
 		print json_encode($sourcedates);
 	}
 
-	public function getlist() {
-		$channel = $this->input->get("channel");
-		$date = $this->input->get("date");
+	public function getlist($source, $date, $channel, $state) {
 		$datesp = explode("-", $date);
 		$year = $datesp[0];
 		$month = $datesp[1];
@@ -173,8 +171,8 @@ class Video extends CI_Controller {
 		$monthName = $dateObj->format('F');
 		$day = $datesp[2];
 
-		$rootdir = $this->srcdir($this->input->get("source"));
-		$destdir = $rootdir."/".$month."-".$monthName."/".$date."/".$channel."/";
+		$rootdir = $this->srcdir($source));
+		$destdir = $rootdir."/".$month."-".$monthName."/".$date."/".$channel."/".$state."/";
 
 		$filesindir = array_map('basename', glob($destdir.'*.{mp4,MP4}', GLOB_BRACE));
 		// $filesindir = glob($destdir.'*.{mp4,MP4}', GLOB_BRACE);
