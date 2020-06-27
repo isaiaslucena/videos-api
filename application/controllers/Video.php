@@ -172,7 +172,7 @@ class Video extends CI_Controller {
 		$day = $datesp[2];
 
 		$rootdir = $this->srcdir($source);
-		$destdir = $rootdir."/".$month."-".$monthName."/".$date."/".$channel."/".$state."/";
+		$destdir = $rootdir."/".$month."-".$monthName."/".$date."/".$channel."_".$state."/";
 
 		$filesindir = array_map('basename', glob($destdir.'*.{mp4,MP4}', GLOB_BRACE));
 		// $filesindir = glob($destdir.'*.{mp4,MP4}', GLOB_BRACE);
