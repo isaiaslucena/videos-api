@@ -212,7 +212,7 @@ class Video extends CI_Controller {
 	}
 
 	public function cropvideo($file, $start, $dur) {
-		$cropDir = $this.>cropDir();
+		$cropDir = $this->cropDir();
 		$cropLogDir = $this->cropLogDir();
 
 		$ffmpegpath = "/usr/bin/ffmpeg";
