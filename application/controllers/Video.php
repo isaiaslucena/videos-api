@@ -768,4 +768,12 @@ class Video extends CI_Controller {
 	public function downfile() {
 		echo 'teste';
 	}
+
+	public function rootdiskusage() {
+		$rootDiskUsage = shell_exec("df -h | grep '/$' | awk '{print $5}'");
+
+		header('Access-Control-Allow-Origin: *');
+		header('Content-Type: application/json');
+		print $rootDiskUsage;
+	}
 }
