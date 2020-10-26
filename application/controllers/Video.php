@@ -774,6 +774,6 @@ class Video extends CI_Controller {
 
 		header('Access-Control-Allow-Origin: *');
 		header('Content-Type: application/json');
-		print json_encode($rootDiskUsage);
+		print str_replace('\n', '', json_encode($rootDiskUsage));
 	}
 }
