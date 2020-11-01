@@ -758,7 +758,7 @@ class Video extends CI_Controller {
 	}
 
 	public function getchannelsinfo() {
-		$verifyoutput = file_get_contents('/tv/scripts/CARDs.json');
+		$verifyoutput = file_get_contents('/applications/record/scripts/CARDs.json');
 
 		header('Access-Control-Allow-Origin: *');
 		header('Content-Type: application/json');
