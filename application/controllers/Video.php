@@ -801,10 +801,10 @@ class Video extends CI_Controller {
 	}
 
 	public function rootdiskusage() {
-		$rootDiskUsage = shell_exec("df -h | grep '/$' | awk '{print $5}'");
+		$rootDiskUsage = trim(shell_exec("df -h | grep '/$' | awk '{print $5}'"));
 
 		header('Access-Control-Allow-Origin: *');
 		header('Content-Type: application/json');
-		print str_replace('\n', '', json_encode($rootDiskUsage));
+		print json_encode($rootDiskUsage);
 	}
 }
