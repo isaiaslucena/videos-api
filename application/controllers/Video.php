@@ -757,12 +757,43 @@ class Video extends CI_Controller {
 		print $verifyoutput;
 	}
 
-	public function getchannelsinfo() {
-		$verifyoutput = file_get_contents('/applications/record/scripts/CARDs.json');
+	public function getchannelsinfo($token = null) {
+		$filePath = '/applications/record/scripts/CARDs.json';
 
-		header('Access-Control-Allow-Origin: *');
-		header('Content-Type: application/json');
-		print $verifyoutput;
+		if (file_exists($filePath)) {
+			$cardsFile = file_get_contents($filePath);
+			$diskToken = trim(file_get_contents('/applications/record/scripts/token.json'));
+
+			if ($token !== $diskToken) {
+				$cardsFilePhp = json_decode($cardsFile, true);
+				$cardsFilePhpHiddenUrls = array_map(function($card) {
+					return array_map(function($channel) {
+						return array(
+							"channel" => $channel["channel"],
+							"type" => $channel["type"],
+							"state" => $channel["state"],
+							"name" => $channel["name"],
+							"sourcec" => '************',
+							"aspect" => $channel["aspect"],
+							"feed" => '************',
+							"savedisk" => $channel["savedisk"],
+							"transc" => $channel["transc"],
+							"transc_machine" => $channel["transc_machine"],
+							"transc_time" => $channel["transc_time"],
+							"transc_disk" => $channel["transc_disk"]
+						);
+					}, $card);
+				}, $cardsFilePhp);
+
+				$cardsFile = json_encode($cardsFilePhpHiddenUrls);
+			}
+
+			header('Access-Control-Allow-Origin: *');
+			header('Content-Type: application/json');
+			print $cardsFile;
+		} else {
+			header('HTTP/1.1 404 Not Found');
+		}
 	}
 
 	public function downfile() {
